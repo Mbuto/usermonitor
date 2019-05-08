@@ -1,0 +1,54 @@
+if [ ! -f conf ]
+then
+echo -n Username:
+read u
+echo -n Password:
+read p
+echo U=$u >conf
+echo P=$p >>conf
+fi
+. ./conf
+if [ ! -f authToken ]
+then
+curl --data-urlencode "username=$U" --data-urlencode "password=$P" https://freefeed.net/v1/session 2>/dev/null | sed -e 's/.*authToken":"//' -e 's/"}//' >authToken
+fi
+T=$(cat authToken)
+
+if [ -f fol.new ]
+then
+mv fol.new fol.old
+else
+> fol.old
+fi
+
+curl -H "X-Authentication-Token: $T" https:/freefeed.net/v1/users/$U/subscribers 2>/dev/null | sed -e 's/"username":/\n/'g | sed -e 's/,.*//' -e 's/"//'g | grep -v subscribers | sort >fol.new
+
+echo Changes in Followers:
+cmp -s fol.old fol.new
+if test $? -eq 0
+then
+echo NONE
+else
+diff fol.old fol.new | egrep '<|>' | sed -e 's/^</LOST /' -e 's/^>/NEW /'
+fi
+
+if [ -f fri.new ]
+then
+mv fri.new fri.old
+else
+> fri.old
+fi
+echo Changes in Friends:
+curl -H "X-Authentication-Token: $T" https:/freefeed.net/v1/users/$U/subscriptions 2>/dev/null | sed -e 's/"username":/\n/'g | sed -e 's/,.*//' -e 's/"//'g  | grep -v subscribers | sort >fri.new
+cmp -s fri.old fri.new
+if test $? -eq 0
+then
+echo NONE
+else
+diff fri.old fri.new | egrep '<|>' | sed -e 's/^</LOST /' -e 's/^>/NEW /'
+fi
+
+echo Friends Only:
+diff *new|egrep '<|>'|grep -v -f gruppi | tr \\n ' ' | fold -w 80
+echo
+exit
