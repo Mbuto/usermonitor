@@ -1,13 +1,13 @@
 # ff follower monitor
-freefeed.net user subscribers monitor
+## freefeed.net user subscribers monitor
 
 This is a simple program to monitor changes in the follower list (subscribers)
-for a freefeed.net user.
+for a *freefeed.net* user.
 
 Download the source code: *ffmon.go*
 
 Put the source code in a folder (ex: ffmon): after compiled, the executable 
-will have the same name of the folder.
+will have the same name as the folder where it is contained.
 
 It is written in GO language and must be compiled using the following command:
   **go build**
