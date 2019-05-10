@@ -13,10 +13,10 @@ It is written in GO language and must be compiled using the following command:
   **go build**
 
 On the very first run, the program asks for Username and Password,
-in order to access the frefeed.net account. If everything is ok,
+in order to access the *freefeed.net* account. If everything is ok,
 an Authorization Token is retrieved and stored, along with Username and
-Password in the same folder as the program. Files named ffmon.conf and
-ffmon.auth will contain Username, Password (in clear text) and Token.
+Password in the same folder as the program. Files named "ffmon.conf" and
+"ffmon.auth" will contain Username, Password (in clear text) and Token.
 
 Any subsequent run will silently use those informations. If something
 goes wrong, just remove the file "ffmon.conf" and try again.
