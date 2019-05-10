@@ -6,10 +6,11 @@ for a freefeed.net user.
 
 Download the source code: *ffmon.go*
 
-It is written in GO language and must be compiled using the following command:
-  go build
 Put the source code in a folder (ex: ffmon): after compiled, the executable 
 will have the same name of the folder.
+
+It is written in GO language and must be compiled using the following command:
+  **go build**
 
 On the very first run, the program asks for Username and Password,
 in order to access the frefeed.net account. If everything is ok,
@@ -18,4 +19,4 @@ Password in the same folder as the program. Files named ffmon.conf and
 ffmon.auth will contain Username, Password (in clear text) and Token.
 
 Any subsequent run will silently use those informations. If something
-goes wrong, just remove ffmon.conf and try again.
+goes wrong, just remove the file "ffmon.conf" and try again.
