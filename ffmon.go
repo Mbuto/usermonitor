@@ -11,6 +11,12 @@ import (
     "net/url"
 )
 
+const ver = "ffmon vers.1.0 color"
+const LOST="\x1b[41mLOST\x1b[0m"
+const NEW="\x1b[30;42mNEW\x1b[0m"
+const INFO="INFO"
+const RESULTN="\x1b[30;106mRESULT\x1b[0m"
+const RESULTY="\x1b[30;103mRESULT\x1b[0m"
 
 func main() {
 u := ""
@@ -29,16 +35,17 @@ allarg2 = "%" + args[1] + "%"
 mono = false
 }
 ****************************************/
-fmt.Printf("INFO: Checking .conf...\n")
+fmt.Printf("%s: %s\n", INFO, ver)
+fmt.Printf("%s: Checking .conf...\n", INFO)
 if fileExists("ffmon.conf") {
 f, err := os.Open("ffmon.conf")
 if err != nil {
 fmt.Printf("ERR-OPE: %v\n", err)
 }
 fmt.Fscanf(f, "%s\n%s\n", &u, &p)
-fmt.Printf("INFO: .conf loaded.\n")
+fmt.Printf("%s: .conf loaded.\n", INFO)
 } else {
-fmt.Printf("INFO: .conf does not exist: creating...\n")
+fmt.Printf("%s: .conf does not exist: creating...\n", INFO)
 reader := bufio.NewReader(os.Stdin)
 fmt.Printf("Username: ")
 u, _ = reader.ReadString('\n')
@@ -55,20 +62,20 @@ fmt.Printf("ERR-CRE: %v\n", err)
 }
 defer f.Close()
 fmt.Fprintf(f, "%s\n%s\n",u,p)
-fmt.Printf("INFO: .conf created.\n")
+fmt.Printf("%s: .conf created.\n", INFO)
 }
 //fmt.Printf("/%s/%s/\n",u,p)
 a := ""
-fmt.Printf("INFO: Checking .auth...\n")
+fmt.Printf("%s: Checking .auth...\n", INFO)
 if fileExists("ffmon.auth") {
 f, err := os.Open("ffmon.auth")
 if err != nil {
 fmt.Printf("ERR-OPE: %v\n", err)
 }
 fmt.Fscanf(f, "%s\n", &a)
-fmt.Printf("INFO: .auth loaded.\n")
+fmt.Printf("%s: .auth loaded.\n", INFO)
 } else {
-fmt.Printf("INFO: .auth does not exist: creating...\n")
+fmt.Printf("%s: .auth does not exist: creating...\n", INFO)
 //curl --data-urlencode "username=$U" --data-urlencode "password=$P" https://freefeed.net/v1/session
 client := &http.Client{ }
 data := url.Values{}
@@ -102,12 +109,12 @@ fmt.Printf("ERR-CREAUTH: %v\n", err)
 }
 fmt.Fprintf(g, "%s\n",a)
 g.Close()
-fmt.Printf("INFO: .auth created.\n")
+fmt.Printf("%s: .auth created.\n", INFO)
 
 }
 //fmt.Printf("authToken/%s/\n",a)
 // curl -H "X-Authentication-Token: $T" https://freefeed.net/v1/users/$U/subscribers
-fmt.Printf("INFO: Getting data from server...\n")
+fmt.Printf("%s: Getting data from server...\n", INFO)
 client2 := &http.Client{ }
 ur := fmt.Sprintf("https://freefeed.net/v1/users/%s/subscribers", u)
 req2, err2 := http.NewRequest("GET", ur, nil)
@@ -138,10 +145,10 @@ for k := 1 ; k < len(bb); k++ {
 	tut = tut + ":" + bb[k][:bbb]
 //	fmt.Printf("%d %s\n", k, bb[k][:bbb])
 }
-//fmt.Printf("INFO: All data retrieved.\n%s\n", tut)
-fmt.Printf("INFO: All data retrieved.\n")
+//fmt.Printf("%s: All data retrieved.\n%s\n", INFO, tut)
+fmt.Printf("%s: All data retrieved.\n", INFO)
 if fileExists("followers") {
-fmt.Printf("INFO: followers file already exists\n")
+fmt.Printf("%s: followers file already exists\n", INFO)
 // something to do...
 f, err := os.Open("followers")
 if err != nil {
@@ -149,32 +156,32 @@ fmt.Printf("ERR-OPE: %v\n", err)
 }
 tut2 := ""
 fmt.Fscanf(f, "%s\n", &tut2)
-fmt.Printf("INFO: followers loaded.\n")
+fmt.Printf("%s: followers loaded.\n", INFO)
 if tut == tut2 {
-fmt.Printf("RESULT: No differences found.\n")
+fmt.Printf("%s: No differences found.\n", RESULTN)
 } else {
-fmt.Printf("RESULT: Differences found.\n")
+fmt.Printf("%s: Differences found.\n", RESULTY)
 //fmt.Printf("OLD followers list: %s\n", tut)
 //fmt.Printf("NEW followers list: %s\n", tut2)
 findiff(tut, tut2)
-fmt.Printf("INFO: Updating followers file...\n")
+fmt.Printf("%s: Updating followers file...\n", INFO)
 f, err := os.Create("followers")
 if err != nil {
 fmt.Printf("ERR-CRE: %v\n", err)
 }
 fmt.Fprintf(f, "%s\n",tut)
 f.Close()
-fmt.Printf("INFO: followers updated.\n")
+fmt.Printf("%s: followers updated.\n", INFO)
 }
 } else {
-fmt.Printf("INFO: Creating followers file...\n")
+fmt.Printf("%s: Creating followers file...\n", INFO)
 f, err := os.Create("followers")
 if err != nil {
 fmt.Printf("ERR-CRE: %v\n", err)
 }
 fmt.Fprintf(f, "%s\n",tut)
 f.Close()
-fmt.Printf("INFO: followers created.\n")
+fmt.Printf("%s: followers created.\n", INFO)
 }
 }
 
@@ -200,7 +207,7 @@ for k := 1 ; k < len(bb); k++ {
 		s = bb[k]
 	}
 	if lost(s, old) {
-		fmt.Printf("NEW: %s\n", s)
+		fmt.Printf("%s: %s\n", NEW, s)
 	}
 }
 // search for LOST
@@ -214,7 +221,7 @@ for k := 1 ; k < len(cc); k++ {
 		s = cc[k]
 	}
 	if lost(s, new) {
-		fmt.Printf("LOST: %s\n", s)
+		fmt.Printf("%s: %s\n", LOST, s)
 	}
 }
 }
