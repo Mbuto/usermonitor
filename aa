@@ -1,3 +1,7 @@
+
+R="[41m"
+G="[30;42m"
+N="[0m"
 if [ ! -f conf ]
 then
 echo -n Username:
@@ -21,7 +25,7 @@ else
 > fol.old
 fi
 
-curl -H "X-Authentication-Token: $T" https:/freefeed.net/v1/users/$U/subscribers 2>/dev/null | sed -e 's/"username":/\n/'g | sed -e 's/,.*//' -e 's/"//'g | grep -v subscribers | sort >fol.new
+curl -H "X-Authentication-Token: $T" https://freefeed.net/v1/users/$U/subscribers 2>/dev/null | sed -e 's/"username":/\n/'g | sed -e 's/,.*//' -e 's/"//'g | grep -v subscribers | sort >fol.new
 
 echo Changes in Followers:
 cmp -s fol.old fol.new
@@ -29,7 +33,7 @@ if test $? -eq 0
 then
 echo NONE
 else
-diff fol.old fol.new | egrep '<|>' | sed -e 's/^</LOST /' -e 's/^>/NEW /'
+diff fol.old fol.new | egrep '<|>' | sed -e "s/^</$R LOST $N/" -e "s/^>/$G NEW $N/"
 fi
 
 if [ -f fri.new ]
@@ -39,16 +43,16 @@ else
 > fri.old
 fi
 echo Changes in Friends:
-curl -H "X-Authentication-Token: $T" https:/freefeed.net/v1/users/$U/subscriptions 2>/dev/null | sed -e 's/"username":/\n/'g | sed -e 's/,.*//' -e 's/"//'g  | grep -v subscribers | sort >fri.new
+curl -H "X-Authentication-Token: $T" https://freefeed.net/v1/users/$U/subscriptions 2>/dev/null | sed -e 's/"username":/\n/'g | grep -v 'type":"group'| sed -e 's/,.*//' -e 's/"//'g  | grep -v subscribers | sort >fri.new
 cmp -s fri.old fri.new
 if test $? -eq 0
 then
 echo NONE
 else
-diff fri.old fri.new | egrep '<|>' | sed -e 's/^</LOST /' -e 's/^>/NEW /'
+diff fri.old fri.new | egrep '<|>' | sed -e "s/^</$R LOST $N/" -e "s/^>/$G NEW $N/"
 fi
 
 echo Friends Only:
-diff *new|egrep '<|>'|grep -v -f gruppi | tr \\n ' ' | fold -w 80
+diff *new|egrep '<|>'| tr \\n ' ' | fold -w 90 | sed -e "s/< /$R < $N/"
 echo
 exit

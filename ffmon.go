@@ -11,7 +11,7 @@ import (
     "net/url"
 )
 
-const ver = "ffmon vers.1.0 color"
+const ver = "ffmon vers.1.1 secure"
 const LOST="\x1b[41mLOST\x1b[0m"
 const NEW="\x1b[30;42mNEW\x1b[0m"
 const INFO="INFO"
@@ -42,7 +42,7 @@ f, err := os.Open("ffmon.conf")
 if err != nil {
 fmt.Printf("ERR-OPE: %v\n", err)
 }
-fmt.Fscanf(f, "%s\n%s\n", &u, &p)
+fmt.Fscanf(f, "%s\n", &u)
 fmt.Printf("%s: .conf loaded.\n", INFO)
 } else {
 fmt.Printf("%s: .conf does not exist: creating...\n", INFO)
@@ -52,19 +52,14 @@ u, _ = reader.ReadString('\n')
 u = strings.Replace(u, "\r\n", "", -1)
 u = strings.Replace(u, "\n", "", -1)
 
-fmt.Printf("Password: ")
-p, _ = reader.ReadString('\n')
-p = strings.Replace(p, "\r\n", "", -1)
-p = strings.Replace(p, "\n", "", -1)
 f, err := os.Create("ffmon.conf")
 if err != nil {
 fmt.Printf("ERR-CRE: %v\n", err)
 }
 defer f.Close()
-fmt.Fprintf(f, "%s\n%s\n",u,p)
+fmt.Fprintf(f, "%s\n",u)
 fmt.Printf("%s: .conf created.\n", INFO)
 }
-//fmt.Printf("/%s/%s/\n",u,p)
 a := ""
 fmt.Printf("%s: Checking .auth...\n", INFO)
 if fileExists("ffmon.auth") {
@@ -76,6 +71,13 @@ fmt.Fscanf(f, "%s\n", &a)
 fmt.Printf("%s: .auth loaded.\n", INFO)
 } else {
 fmt.Printf("%s: .auth does not exist: creating...\n", INFO)
+
+reader := bufio.NewReader(os.Stdin)
+fmt.Printf("Password: ")
+p, _ = reader.ReadString('\n')
+p = strings.Replace(p, "\r\n", "", -1)
+p = strings.Replace(p, "\n", "", -1)
+
 //curl --data-urlencode "username=$U" --data-urlencode "password=$P" https://freefeed.net/v1/session
 client := &http.Client{ }
 data := url.Values{}
@@ -99,7 +101,7 @@ req, err := http.NewRequest("POST", "https://freefeed.net/v1/session", bytes.New
 	if err != nil {
 		fmt.Printf("ERR-CLOSE: %v\n", err)
 	}
-//	fmt.Println(string(f))
+
 aa := strings.SplitAfter(string(f), "authToken\":\"")
 aaa := aa[1]
 a = aaa[:len(aaa)-2]
@@ -112,7 +114,7 @@ g.Close()
 fmt.Printf("%s: .auth created.\n", INFO)
 
 }
-//fmt.Printf("authToken/%s/\n",a)
+
 // curl -H "X-Authentication-Token: $T" https://freefeed.net/v1/users/$U/subscribers
 fmt.Printf("%s: Getting data from server...\n", INFO)
 client2 := &http.Client{ }
@@ -137,19 +139,19 @@ req2, err2 := http.NewRequest("GET", ur, nil)
 	if err != nil {
 		fmt.Printf("ERR-CLOSE: %v\n", err)
 	}
-//	fmt.Println(string(h))
+
 tut := ""
 bb := strings.SplitAfter(string(h), "username\":\"")
+numfol := 0
 for k := 1 ; k < len(bb); k++ {
 	bbb:=strings.Index(bb[k], "\"")
 	tut = tut + ":" + bb[k][:bbb]
-//	fmt.Printf("%d %s\n", k, bb[k][:bbb])
+	numfol++
 }
-//fmt.Printf("%s: All data retrieved.\n%s\n", INFO, tut)
 fmt.Printf("%s: All data retrieved.\n", INFO)
 if fileExists("followers") {
 fmt.Printf("%s: followers file already exists\n", INFO)
-// something to do...
+
 f, err := os.Open("followers")
 if err != nil {
 fmt.Printf("ERR-OPE: %v\n", err)
@@ -157,6 +159,7 @@ fmt.Printf("ERR-OPE: %v\n", err)
 tut2 := ""
 fmt.Fscanf(f, "%s\n", &tut2)
 fmt.Printf("%s: followers loaded.\n", INFO)
+fmt.Printf("%s: num. followers %d.\n", INFO, numfol)
 if tut == tut2 {
 fmt.Printf("%s: No differences found.\n", RESULTN)
 } else {
